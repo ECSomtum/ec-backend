@@ -1,16 +1,10 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import as_declarative, declared_attr
-from sqlalchemy.orm import sessionmaker
+import os
 
-from app.core.config import settings
+from dotenv import load_dotenv
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
+from sqlalchemy.orm import sessionmaker, relationship
 
-engine = create_engine(settings.DATABASE_URI, pool_pre_ping=True)
+load_dotenv()
+
+engine = create_engine(os.environ.get('DATABASE_URI'), pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-@as_declarative()
-class Base:
-
-    @declared_attr
-    def __tablename__(cls) -> str:
-        return cls.__name__.lower()
