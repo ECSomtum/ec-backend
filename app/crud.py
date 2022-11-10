@@ -9,3 +9,7 @@ def get_candidate(db: Session, candidate_id: int):
 
 def get_candidates(db: Session):
     return db.query(model.Candidate).all()
+
+
+def get_party(db: Session):
+    return db.query(model.Party).all()
