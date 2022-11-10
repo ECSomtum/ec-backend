@@ -16,7 +16,7 @@ def get_application():
 
     _app.add_middleware(
         CORSMiddleware,
-        allow_origins=[str(origin) for origin in os.environ.get('BACKEND_CORS_ORIGINS')],
+        allow_origins=[os.environ.get('BACKEND_CORS_ORIGINS')],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -50,6 +50,12 @@ def get_user(candidate_id: int, db: Session = Depends(get_db)):
 def get_users(db: Session = Depends(get_db)):
     candidates = crud.get_candidates(db)
     return candidates
+
+
+@app.get("/party/", response_model=List[schema.Party])
+def get_parties(db: Session = Depends(get_db)):
+    parties = crud.get_party(db)
+    return parties
 
 
 if __name__ == "__main__":
