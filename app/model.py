@@ -15,6 +15,7 @@ class Candidate(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(50))
     pictureUrl = Column(Text(500))
+    area_id = Column(Integer)
 
     party_id = Column(Integer, ForeignKey("party.id"))
     party = relationship("Party", back_populates="candidates")
@@ -33,6 +34,7 @@ class Party(Base):
 
 class Ballot(Base):
     id = Column(Integer, primary_key=True)
+    area_id = Column(Integer)
 
     party_id = Column(Integer, ForeignKey("party.id"))
     party = relationship("Party", back_populates="ballots")

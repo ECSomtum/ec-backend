@@ -7,6 +7,7 @@ class Candidate(BaseModel):
     id: int
     name: str
     pictureUrl: str
+    area_id: int
     party_id: int
 
     class Config:
@@ -17,7 +18,6 @@ class Party(BaseModel):
     id: int
     name: str
     pictureUrl: str
-    candidates: List[Candidate]
 
     class Config:
         orm_mode = True
@@ -25,6 +25,7 @@ class Party(BaseModel):
 
 class Ballot(BaseModel):
     id: int
+    area_id: int
     party_id: int
     candidate_id: int
 

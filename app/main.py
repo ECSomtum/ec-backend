@@ -64,12 +64,33 @@ def get_party_members(party_id: int, db: Session = Depends(get_db)):
     return candidates
 
 
-@app.get("/vote/")
+@app.get("/vote/", response_model=schema.VoteResponse)
 def vote(party_id: int, candidate_id: int, db: Session = Depends(get_db)):
     ballot = crud.create_ballot(db, party_id, candidate_id)
     vote_result = schema.VoteResponse(voteForParty=ballot)
     return vote_result
 
+
+@app.get("/validation")
+def get_ballots(area_id: int, db: Session = Depends(get_db)):
+    ballots = crud.get_ballots_by_area(db, area_id)
+    return ballots
+
+
+@app.get("/score/")
+async def get_candidate_scores(db: Session = Depends(get_db)):
+    ballots = crud.get_ballots(db)
+
+    sorted_id_ballots = sorted(ballots, key=lambda b: b.candidate_id)
+
+    candidates_score = dict()
+    for b in sorted_id_ballots:
+        if b.candidate_id not in candidates_score:
+            candidates_score[b.candidate_id] = 1
+        else:
+            candidates_score[b.candidate_id] += 1
+
+    return candidates_score
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
