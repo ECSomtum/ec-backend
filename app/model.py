@@ -27,6 +27,7 @@ class Party(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(50))
     pictureUrl = Column(Text(500))
+    # accept_candidate = Column(Integer)
 
     candidates = relationship("Candidate", back_populates="party")
     ballots = relationship("Ballot", back_populates="party")

@@ -40,3 +40,6 @@ def get_ballots(db: Session):
     ballots = db.query(model.Ballot).all()
 
     return ballots
+
+# def get_party_ranking(db: Session):
+#     rank = db.query(model.Party).group_by(accept_candidate)

@@ -92,5 +92,23 @@ async def get_candidate_scores(db: Session = Depends(get_db)):
 
     return candidates_score
 
+# @app.get("/ranking-party/", response_model=List[schema.Party])
+# def get_ranking_party(db: Session = Depends(get_db)):
+#     parties = crud.get_party(db)
+#     parties_rank = dict()
+    
+#     ballots = crud.get_ballots(db)
+
+#     sorted_id_ballots = sorted(ballots, key=lambda b: b.candidate_id)
+
+#     candidates_score = dict()
+#     for b in sorted_id_ballots:
+#         if b.candidate_id not in candidates_score:
+#             candidates_score[b.candidate_id] = 1
+#         else:
+#             candidates_score[b.candidate_id] += 1
+#     for p in candidates_score:
+#         if p.area_id.sort
+
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)

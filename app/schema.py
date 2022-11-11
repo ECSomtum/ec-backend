@@ -18,6 +18,7 @@ class Party(BaseModel):
     id: int
     name: str
     pictureUrl: str
+    # accept_candidate: int
 
     class Config:
         orm_mode = True
