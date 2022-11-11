@@ -64,5 +64,12 @@ def get_party_members(party_id: int, db: Session = Depends(get_db)):
     return candidates
 
 
+@app.get("/vote/")
+def vote(party_id: int, candidate_id: int, db: Session = Depends(get_db)):
+    ballot = crud.create_ballot(db, party_id, candidate_id)
+    vote_result = schema.VoteResponse(voteForParty=ballot)
+    return vote_result
+
+
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)

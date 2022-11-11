@@ -17,3 +17,13 @@ def get_party(db: Session):
 
 def get_party_members(db: Session, party_id: int):
     return db.query(model.Candidate).filter(model.Candidate.party_id == party_id).all()
+
+
+def create_ballot(db: Session, party_id: int, candidate_id: int):
+    ballot = model.Ballot(party_id=party_id, candidate_id=candidate_id)
+
+    db.add(ballot)
+    db.commit()
+    db.refresh(ballot)
+
+    return ballot

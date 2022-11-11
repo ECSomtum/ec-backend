@@ -21,3 +21,16 @@ class Party(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class Ballot(BaseModel):
+    id: int
+    party_id: int
+    candidate_id: int
+
+    class Config:
+        orm_mode = True
+
+
+class VoteResponse(BaseModel):
+    voteForParty: Ballot
