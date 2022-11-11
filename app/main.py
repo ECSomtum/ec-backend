@@ -58,5 +58,11 @@ def get_parties(db: Session = Depends(get_db)):
     return parties
 
 
+@app.get("/party/member", response_model=List[schema.Candidate])
+def get_party_members(party_id: int, db: Session = Depends(get_db)):
+    candidates = crud.get_party_members(db, party_id)
+    return candidates
+
+
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)

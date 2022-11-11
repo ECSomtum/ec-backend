@@ -13,3 +13,7 @@ def get_candidates(db: Session):
 
 def get_party(db: Session):
     return db.query(model.Party).all()
+
+
+def get_party_members(db: Session, party_id: int):
+    return db.query(model.Candidate).filter(model.Candidate.party_id == party_id).all()
