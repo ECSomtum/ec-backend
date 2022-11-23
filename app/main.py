@@ -46,13 +46,13 @@ def get_user(candidate_id: int, db: Session = Depends(get_db)):
     return candidate
 
 
-@app.get("/candidates/", response_model=List[schema.Candidate])
+@app.get("/candidates", response_model=List[schema.Candidate])
 def get_users(db: Session = Depends(get_db)):
     candidates = crud.get_candidates(db)
     return candidates
 
 
-@app.get("/party/", response_model=List[schema.Party])
+@app.get("/party", response_model=List[schema.Party])
 def get_parties(db: Session = Depends(get_db)):
     parties = crud.get_party(db)
     return parties
@@ -64,22 +64,60 @@ def get_party_members(party_id: int, db: Session = Depends(get_db)):
     return candidates
 
 
-@app.get("/vote/", response_model=schema.VoteResponse)
-def vote(party_id: int, candidate_id: int, db: Session = Depends(get_db)):
-    ballot = crud.create_ballot(db, party_id, candidate_id)
-    vote_result = schema.VoteResponse(voteForParty=ballot)
+@app.get("/vote/party", response_model=schema.MPVoteResponse)
+def vote_party(party_id: int, area_id: int, db: Session = Depends(get_db)):
+    ballot = crud.create_ballot_party(db, party_id, area_id)
+    vote_result = schema.MPVoteResponse(voteForParty=ballot)
+    return vote_result
+
+
+@app.get("/vote/mp", response_model=schema.PartVoteResponse)
+def vote_mp(candidate_id: int, area_id: int, db: Session = Depends(get_db)):
+    ballot = crud.create_ballot_mp(db, candidate_id, area_id)
+    vote_result = schema.PartVoteResponse(voteForParty=ballot)
+    return vote_result
+
+
+VOTE_TOPIC_ID = {
+    "MP": 1,
+    "Party": 2
+}
+
+
+"""
+vote_topic_id: Either candidate_id or party_id
+"""
+@app.get("/vote")
+def vote(vote_topic_id: int, area_id: int, vote_target_id: int, db: Session = Depends(get_db)):
+    VOTE_TOPIC_ID = {
+        1: {
+            "method": crud.create_ballot_mp,
+            "response_model": schema.MPVoteResponse
+        },
+        2: {
+            "method": crud.create_ballot_party,
+            "response_model": schema.PartVoteResponse
+        }
+    }
+
+    vote_topic = VOTE_TOPIC_ID.get(vote_topic_id)
+    voting = vote_topic.get("method")
+    vote_response_model = vote_topic.get("response_model")
+
+    ballot = voting(db, vote_target_id, area_id)
+    vote_result = vote_response_model(voteForParty=ballot)
     return vote_result
 
 
 @app.get("/validation")
-def get_ballots(area_id: int, db: Session = Depends(get_db)):
-    ballots = crud.get_ballots_by_area(db, area_id)
+def get_ballots(vote_topic_id: int, area_id: int, db: Session = Depends(get_db)):
+    ballots = crud.get_ballots_by_area(db, vote_topic_id, area_id)
     return ballots
 
 
-@app.get("/score/")
-async def get_candidate_scores(db: Session = Depends(get_db)):
-    ballots = crud.get_ballots(db)
+@app.get("/score/mp")
+def get_candidate_scores(db: Session = Depends(get_db)):
+    ballots = crud.get_ballots(db, VOTE_TOPIC_ID.get("MP"))
 
     sorted_id_ballots = sorted(ballots, key=lambda b: b.candidate_id)
 
@@ -91,6 +129,55 @@ async def get_candidate_scores(db: Session = Depends(get_db)):
             candidates_score[b.candidate_id] += 1
 
     return candidates_score
+
+
+@app.get("/score/mp")
+def get_candidate_scores(db: Session = Depends(get_db)):
+    ballots = crud.get_ballots(db, VOTE_TOPIC_ID.get("MP"))
+
+    sorted_id_ballots = sorted(ballots, key=lambda b: b.candidate_id)
+
+    candidates_score = dict()
+    for b in sorted_id_ballots:
+        if b.candidate_id not in candidates_score:
+            candidates_score[b.candidate_id] = 1
+        else:
+            candidates_score[b.candidate_id] += 1
+
+    return candidates_score
+
+
+@app.get("/score/party")
+def get_candidate_scores(db: Session = Depends(get_db)):
+    ballots = crud.get_ballots(db, VOTE_TOPIC_ID.get("Party"))
+
+    sorted_id_ballots = sorted(ballots, key=lambda b: b.party_id)
+
+    party_scores = dict()
+    for b in sorted_id_ballots:
+        if b.party_id not in party_scores:
+            party_scores[b.party_id] = 1
+        else:
+            party_scores[b.party_id] += 1
+
+    return party_scores
+
+
+@app.get("/score/area")
+def get_candidate_scores_area(area_id: int, db: Session = Depends(get_db)):
+    ballots = crud.get_ballots_by_area(db, VOTE_TOPIC_ID.get("Party"), area_id)
+
+    sorted_id_ballots = sorted(ballots, key=lambda b: b.party_id)
+
+    party_scores = dict()
+    for b in sorted_id_ballots:
+        if b.party_id not in party_scores:
+            party_scores[b.party_id] = 1
+        else:
+            party_scores[b.party_id] += 1
+
+    return party_scores
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
