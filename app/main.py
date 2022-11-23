@@ -43,8 +43,8 @@ def hello():
     return "Hello from Somtum"
 
 
-@app.get("/candidates/{id}", response_model=schema.Candidate)
-def get_user(candidate_id: int, db: Session = Depends(get_db)):
+@app.get("/candidates/{candidate_id}", response_model=schema.Candidate)
+def get_candidate(candidate_id: int, db: Session = Depends(get_db)):
     candidate = crud.get_candidate(db, candidate_id)
     if candidate is None:
         raise HTTPException(status_code=404, detail="Candidate not found")
@@ -52,8 +52,14 @@ def get_user(candidate_id: int, db: Session = Depends(get_db)):
 
 
 @app.get("/candidates", response_model=List[schema.Candidate])
-def get_users(db: Session = Depends(get_db)):
+def get_candidates(db: Session = Depends(get_db)):
     candidates = crud.get_candidates(db)
+    return candidates
+
+
+@app.get("/candidates/area/{area_id}", response_model=List[schema.Candidate])
+def get_candidates_area(area_id: int, db: Session = Depends(get_db)):
+    candidates = crud.get_candidates_by_area(db, area_id)
     return candidates
 
 

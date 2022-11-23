@@ -16,6 +16,10 @@ def get_candidates(db: Session):
     return db.query(model.Candidate).all()
 
 
+def get_candidates_by_area(db: Session, area_id: int):
+    return db.query(model.Candidate).filter(model.Candidate.area_id == area_id).all()
+
+
 def get_party(db: Session):
     return db.query(model.Party).all()
 
