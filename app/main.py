@@ -84,6 +84,9 @@ VOTE_TOPIC_ID = {
 }
 
 
+"""
+vote_topic_id: Either candidate_id or party_id
+"""
 @app.get("/vote")
 def vote(vote_topic_id: int, area_id: int, vote_target_id: int, db: Session = Depends(get_db)):
     VOTE_TOPIC_ID = {
