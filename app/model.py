@@ -20,7 +20,7 @@ class Candidate(Base):
     party_id = Column(Integer, ForeignKey("party.id"))
     party = relationship("Party", back_populates="candidates")
 
-    ballots = relationship("Ballot", back_populates="candidate")
+    mp_ballots = relationship("MPBallot", back_populates="candidate")
 
 
 class Party(Base):
@@ -29,15 +29,20 @@ class Party(Base):
     pictureUrl = Column(Text(500))
 
     candidates = relationship("Candidate", back_populates="party")
-    ballots = relationship("Ballot", back_populates="party")
+    party_ballots = relationship("PartyBallot", back_populates="party")
 
 
-class Ballot(Base):
+class PartyBallot(Base):
     id = Column(Integer, primary_key=True)
     area_id = Column(Integer)
 
     party_id = Column(Integer, ForeignKey("party.id"))
-    party = relationship("Party", back_populates="ballots")
+    party = relationship("Party", back_populates="party_ballots")
+
+
+class MPBallot(Base):
+    id = Column(Integer, primary_key=True)
+    area_id = Column(Integer)
 
     candidate_id = Column(Integer, ForeignKey("candidate.id"))
-    candidate = relationship("Candidate", back_populates="ballots")
+    candidate = relationship("Candidate", back_populates="mp_ballots")
