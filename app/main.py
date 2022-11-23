@@ -26,8 +26,8 @@ def get_application():
     return _app
 
 
-def get_db():
-    db = SessionLocal()
+async def get_db():
+    db = await SessionLocal()
     try:
         yield db
     finally:
