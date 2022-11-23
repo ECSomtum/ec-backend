@@ -1,3 +1,4 @@
+import json
 import os
 from typing import List
 
@@ -16,7 +17,7 @@ def get_application():
 
     _app.add_middleware(
         CORSMiddleware,
-        allow_origins=[os.environ.get('BACKEND_CORS_ORIGINS')],
+        allow_origins=json.loads(os.environ.get('BACKEND_CORS_ORIGINS')),
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
