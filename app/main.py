@@ -35,8 +35,12 @@ def get_db():
 
 
 load_dotenv()
-model.Base.metadata.create_all(bind=engine)
 app = get_application()
+
+
+@app.get("/")
+def hello():
+    return "Hello from Somtum"
 
 
 @app.get("/candidates/{id}", response_model=schema.Candidate)
