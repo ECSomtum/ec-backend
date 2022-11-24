@@ -4,3 +4,4 @@ python-dotenv~=0.21.0
 pydantic~=1.10.2
 SQLAlchemy~=1.4.42
 mysqlclient
+httpx

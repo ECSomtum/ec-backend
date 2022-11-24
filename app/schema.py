@@ -3,8 +3,27 @@ from typing import List
 from pydantic import BaseModel
 
 
+class GovCandidate(BaseModel):
+    CitizenID: int
+    LazerID: str
+    Name: str
+    Lastname: str
+    Birthday: str
+    Nationality: str
+    DistrictID: str
+
+
+class PopulationStatistic(BaseModel):
+    LocationID: int
+    Location: str
+    PeopleWithRightToVote: int
+    PeopleCommitTheVote: int
+    TotalPeople: int
+
+
 class Candidate(BaseModel):
     id: int
+    citizenId: str
     name: str
     pictureUrl: str
     area_id: int

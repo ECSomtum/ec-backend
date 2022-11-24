@@ -1,14 +1,16 @@
+import asyncio
 import json
 import os
 from typing import List
 
+import httpx
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-from app import model, schema, crud
+from app import model, schema, crud, http_client
 from app.database import engine, SessionLocal
 
 
@@ -94,10 +96,11 @@ VOTE_TOPIC_ID = {
     "Party": 2
 }
 
-
 """
 vote_topic_id: Either candidate_id or party_id
 """
+
+
 @app.get("/vote")
 def vote(vote_topic_id: int, area_id: int, vote_target_id: int, db: Session = Depends(get_db)):
     VOTE_TOPIC_ID = {
@@ -188,6 +191,32 @@ def get_candidate_scores_area(area_id: int, db: Session = Depends(get_db)):
             party_scores[b.party_id] += 1
 
     return party_scores
+
+
+@app.get("/gov/candidates", response_model=List[schema.GovCandidate])
+def get_candidate_and_save_to_db(db: Session = Depends(get_db)):
+    try:
+        candidates = asyncio.run(http_client.get_candidate_from_gov())
+        # TODO Add save to db
+
+        return candidates
+    except httpx.HTTPError:
+        return []
+
+
+@app.get("/population", response_model=List[schema.PopulationStatistic])
+def get_population_statistics():
+    try:
+        population_statistics = asyncio.run(http_client.get_population_statistics())
+
+        return population_statistics
+    except httpx.HTTPError:
+        return []
+
+
+@app.post("/submit")
+def submit_mp():
+    pass
 
 
 if __name__ == "__main__":
