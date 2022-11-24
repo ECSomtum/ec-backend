@@ -77,7 +77,7 @@ def get_party(party_id: int, db: Session = Depends(get_db)):
     return party
 
 
-@app.get("/party/member", response_model=List[schema.Candidate], tags=["Voter"])
+@app.get("/party/member/{party_id}", response_model=List[schema.Candidate], tags=["Voter"])
 def get_party_members(party_id: int, db: Session = Depends(get_db)):
     candidates = crud.get_party_members(db, party_id)
     return candidates
