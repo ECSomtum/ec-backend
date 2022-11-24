@@ -40,12 +40,12 @@ load_dotenv()
 app = get_application()
 
 
-@app.get("/")
+@app.get("/", tags=["Hello Welcome"])
 def hello():
     return "Hello from Somtum"
 
 
-@app.get("/candidates/{candidate_id}", response_model=schema.Candidate)
+@app.get("/candidates/{candidate_id}", response_model=schema.Candidate, tags=["Voter"])
 def get_candidate(candidate_id: int, db: Session = Depends(get_db)):
     candidate = crud.get_candidate(db, candidate_id)
     if candidate is None:
@@ -53,41 +53,41 @@ def get_candidate(candidate_id: int, db: Session = Depends(get_db)):
     return candidate
 
 
-@app.get("/candidates", response_model=List[schema.Candidate])
+@app.get("/candidates", response_model=List[schema.Candidate], tags=["Voter"])
 def get_candidates(db: Session = Depends(get_db)):
     candidates = crud.get_candidates(db)
     return candidates
 
 
-@app.get("/candidates/area/{area_id}", response_model=List[schema.Candidate])
+@app.get("/candidates/area/{area_id}", response_model=List[schema.Candidate], tags=["Voter"])
 def get_candidates_area(area_id: int, db: Session = Depends(get_db)):
     candidates = crud.get_candidates_by_area(db, area_id)
     return candidates
 
 
-@app.get("/party", response_model=List[schema.Party])
+@app.get("/party", response_model=List[schema.Party], tags=["Voter"])
 def get_parties(db: Session = Depends(get_db)):
     parties = crud.get_party(db)
     return parties
 
 
-@app.get("/party/member", response_model=List[schema.Candidate])
+@app.get("/party/member", response_model=List[schema.Candidate], tags=["Voter"])
 def get_party_members(party_id: int, db: Session = Depends(get_db)):
     candidates = crud.get_party_members(db, party_id)
     return candidates
 
 
-@app.get("/vote/party", response_model=schema.MPVoteResponse)
+@app.get("/vote/party", response_model=schema.PartyVoteResponse, tags=["Voter"])
 def vote_party(party_id: int, area_id: int, db: Session = Depends(get_db)):
     ballot = crud.create_ballot_party(db, party_id, area_id)
-    vote_result = schema.MPVoteResponse(voteForParty=ballot)
+    vote_result = schema.PartyVoteResponse(voteForParty=ballot)
     return vote_result
 
 
-@app.get("/vote/mp", response_model=schema.PartVoteResponse)
+@app.get("/vote/mp", response_model=schema.MPVoteResponse, tags=["Voter"])
 def vote_mp(candidate_id: int, area_id: int, db: Session = Depends(get_db)):
     ballot = crud.create_ballot_mp(db, candidate_id, area_id)
-    vote_result = schema.PartVoteResponse(voteForParty=ballot)
+    vote_result = schema.MPVoteResponse(voteForParty=ballot)
     return vote_result
 
 
@@ -101,7 +101,7 @@ vote_topic_id: Either candidate_id or party_id
 """
 
 
-@app.get("/vote")
+@app.get("/vote", tags=["Voter"])
 def vote(vote_topic_id: int, area_id: int, vote_target_id: int, db: Session = Depends(get_db)):
     VOTE_TOPIC_ID = {
         1: {
@@ -110,7 +110,7 @@ def vote(vote_topic_id: int, area_id: int, vote_target_id: int, db: Session = De
         },
         2: {
             "method": crud.create_ballot_party,
-            "response_model": schema.PartVoteResponse
+            "response_model": schema.PartyVoteResponse
         }
     }
 
@@ -123,13 +123,13 @@ def vote(vote_topic_id: int, area_id: int, vote_target_id: int, db: Session = De
     return vote_result
 
 
-@app.get("/validation")
+@app.get("/validation", tags=["Voter"])
 def get_ballots(vote_topic_id: int, area_id: int, db: Session = Depends(get_db)):
     ballots = crud.get_ballots_by_area(db, vote_topic_id, area_id)
     return ballots
 
 
-@app.get("/score/mp")
+@app.get("/score/mp", tags=["EC"])
 def get_candidate_scores(db: Session = Depends(get_db)):
     ballots = crud.get_ballots(db, VOTE_TOPIC_ID.get("MP"))
 
@@ -145,7 +145,7 @@ def get_candidate_scores(db: Session = Depends(get_db)):
     return candidates_score
 
 
-@app.get("/score/mp")
+@app.get("/score/mp", tags=["EC"])
 def get_candidate_scores(db: Session = Depends(get_db)):
     ballots = crud.get_ballots(db, VOTE_TOPIC_ID.get("MP"))
 
@@ -161,7 +161,7 @@ def get_candidate_scores(db: Session = Depends(get_db)):
     return candidates_score
 
 
-@app.get("/score/party")
+@app.get("/score/party", tags=["EC"])
 def get_candidate_scores(db: Session = Depends(get_db)):
     ballots = crud.get_ballots(db, VOTE_TOPIC_ID.get("Party"))
 
@@ -177,7 +177,7 @@ def get_candidate_scores(db: Session = Depends(get_db)):
     return party_scores
 
 
-@app.get("/score/area")
+@app.get("/score/area", tags=["EC"])
 def get_candidate_scores_area(area_id: int, db: Session = Depends(get_db)):
     ballots = crud.get_ballots_by_area(db, VOTE_TOPIC_ID.get("Party"), area_id)
 
@@ -193,7 +193,7 @@ def get_candidate_scores_area(area_id: int, db: Session = Depends(get_db)):
     return party_scores
 
 
-@app.get("/gov/candidates", response_model=List[schema.GovCandidate])
+@app.get("/gov/candidates", response_model=List[schema.GovCandidate], tags=["EC"])
 def get_candidate_and_save_to_db(db: Session = Depends(get_db)):
     try:
         candidates = asyncio.run(http_client.get_candidate_from_gov())
@@ -204,7 +204,7 @@ def get_candidate_and_save_to_db(db: Session = Depends(get_db)):
         return []
 
 
-@app.get("/population", response_model=List[schema.PopulationStatistic])
+@app.get("/population", response_model=List[schema.PopulationStatistic], tags=["EC"])
 def get_population_statistics():
     try:
         population_statistics = asyncio.run(http_client.get_population_statistics())
@@ -214,7 +214,7 @@ def get_population_statistics():
         return []
 
 
-@app.post("/submit")
+@app.post("/submit", tags=["EC"])
 def submit_mp():
     pass
 

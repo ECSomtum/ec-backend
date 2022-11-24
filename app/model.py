@@ -13,7 +13,6 @@ class Base:
 
 class Candidate(Base):
     id = Column(Integer, primary_key=True)
-    citizen_id = Column(String(14))
     name = Column(String(50))
     pictureUrl = Column(Text(500))
     area_id = Column(Integer)

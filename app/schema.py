@@ -23,7 +23,6 @@ class PopulationStatistic(BaseModel):
 
 class Candidate(BaseModel):
     id: int
-    citizenId: str
     name: str
     pictureUrl: str
     area_id: int
@@ -62,5 +61,5 @@ class MPVoteResponse(BaseModel):
     voteForParty: MPBallot
 
 
-class PartVoteResponse(BaseModel):
+class PartyVoteResponse(BaseModel):
     voteForParty: PartyBallot
