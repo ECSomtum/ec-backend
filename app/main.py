@@ -67,8 +67,14 @@ def get_candidates_area(area_id: int, db: Session = Depends(get_db)):
 
 @app.get("/party", response_model=List[schema.Party], tags=["Voter"])
 def get_parties(db: Session = Depends(get_db)):
-    parties = crud.get_party(db)
+    parties = crud.get_parties(db)
     return parties
+
+
+@app.get("/party/{party_id}", response_model=schema.Party, tags=["Voter"])
+def get_party(party_id: int, db: Session = Depends(get_db)):
+    party = crud.get_party(db, party_id)
+    return party
 
 
 @app.get("/party/member", response_model=List[schema.Candidate], tags=["Voter"])

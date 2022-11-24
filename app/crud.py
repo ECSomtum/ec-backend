@@ -20,7 +20,11 @@ def get_candidates_by_area(db: Session, area_id: int):
     return db.query(model.Candidate).filter(model.Candidate.area_id == area_id).all()
 
 
-def get_party(db: Session):
+def get_party(db: Session, party_id: int):
+    return db.query(model.Party).filter(model.Party.id == party_id).first()
+
+
+def get_parties(db: Session):
     return db.query(model.Party).all()
 
 

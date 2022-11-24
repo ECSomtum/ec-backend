@@ -3,7 +3,6 @@ import httpx
 import os
 from dotenv import load_dotenv
 
-from app.schema import Candidate
 
 load_dotenv()
 
@@ -40,9 +39,9 @@ async def get_population_statistics():
     return response.json()
 
 
-async def submit_mp(selected_candidate: Candidate):
+async def submit_mp(candidate_id: int):
     mp = {
-        "CitizenID": selected_candidate.citizenId
+        "CitizenID": candidate_id
     }
     async with httpx.AsyncClient() as client:
         response = await client.post(get_url_path('SubmitMP'), headers=get_authorization_headers(), json=mp)
