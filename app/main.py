@@ -195,11 +195,19 @@ def get_candidates_score_areas(db: Session = Depends(get_db)):
             sorted_id_ballots = sorted(ballots, key=lambda b: b.party_id)
 
             party_scores = dict()
+            scores = dict()
             for b in sorted_id_ballots:
-                if b.party_id not in party_scores:
-                    party_scores[b.party_id] = 1
+                if b.party_id not in scores:
+                    scores[b.party_id] = 1
                 else:
-                    party_scores[b.party_id] += 1
+                    scores[b.party_id] += 1
+
+            party_scores["score"] = scores
+
+            try:
+                party_scores["most_voted"] = max(scores, key=scores.get)
+            except ValueError:
+                party_scores["most_voted"] = 0
 
             party_scores["area_id"] = location.get("LocationID")
             party_scores["area_name"] = location.get("Location")
