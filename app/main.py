@@ -225,6 +225,11 @@ def get_candidate_and_save_to_db(db: Session = Depends(get_db)):
     try:
         candidates = asyncio.run(http_client.get_candidate_from_gov())
         # TODO Add save to db
+        for c in candidates:
+            citizen_id = c.get("CitizenID")
+            name = " ".join([c.get("Name"), c.get("Lastname")])
+            area_id = c.get("DistrictID")
+            crud.create_candidate(db, citizen_id, name, area_id)
 
         return candidates
     except httpx.HTTPError:

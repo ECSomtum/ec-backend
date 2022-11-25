@@ -32,6 +32,16 @@ def get_party_members(db: Session, party_id: int):
     return db.query(model.Candidate).filter(model.Candidate.party_id == party_id).all()
 
 
+def create_candidate(db: Session, citizen_id: int, name: str, area_id: int):
+    candidate = model.Candidate(citizen_id=citizen_id, name=name, area_id=area_id)
+
+    db.add(candidate)
+    db.commit()
+    db.refresh(candidate)
+
+    return candidate
+
+
 def create_ballot_party(db: Session, party_id: int, area_id: int):
     ballot = model.PartyBallot(area_id=area_id, party_id=party_id)
 
