@@ -199,8 +199,8 @@ def get_party_scores_area(area_id: int, db: Session = Depends(get_db)):
     return party_scores
 
 
-@app.get("/score/areas", tags=["EC"])
-def get_candidates_score_areas(db: Session = Depends(get_db)):
+@app.get("/score/party/areas", tags=["EC"])
+def get_party_score_areas(db: Session = Depends(get_db)):
     try:
         population_statistics = asyncio.run(http_client.get_population_statistics())
         area_scores = []
@@ -229,6 +229,43 @@ def get_candidates_score_areas(db: Session = Depends(get_db)):
             party_scores["area_name"] = location.get("Location")
 
             area_scores.append(party_scores)
+
+        return area_scores
+
+    except httpx.HTTPError:
+        return []
+
+
+@app.get("/score/candidate/areas", tags=["EC"])
+def get_party_score_areas(db: Session = Depends(get_db)):
+    try:
+        population_statistics = asyncio.run(http_client.get_population_statistics())
+        area_scores = []
+
+        for location in population_statistics:
+            ballots = crud.get_ballots_by_area(db, VOTE_TOPIC_ID.get("MP"), location.get("LocationID"))
+
+            sorted_id_ballots = sorted(ballots, key=lambda b: b.candidate_id)
+
+            candidate_scores = dict()
+            scores = dict()
+            for b in sorted_id_ballots:
+                if b.candidate_id not in scores:
+                    scores[b.candidate_id] = 1
+                else:
+                    scores[b.candidate_id] += 1
+
+            candidate_scores["score"] = scores
+
+            try:
+                candidate_scores["most_voted"] = max(scores, key=scores.get)
+            except ValueError:
+                candidate_scores["most_voted"] = 0
+
+            candidate_scores["area_id"] = location.get("LocationID")
+            candidate_scores["area_name"] = location.get("Location")
+
+            area_scores.append(candidate_scores)
 
         return area_scores
 
