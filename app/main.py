@@ -167,8 +167,24 @@ def get_candidate_scores(db: Session = Depends(get_db)):
     return party_scores
 
 
-@app.get("/score/area", tags=["EC"])
+@app.get("/score/area/candidate", tags=["EC"])
 def get_candidate_scores_area(area_id: int, db: Session = Depends(get_db)):
+    ballots = crud.get_ballots_by_area(db, VOTE_TOPIC_ID.get("MP"), area_id)
+
+    sorted_id_ballots = sorted(ballots, key=lambda b: b.candidate_id)
+
+    candidates_scores = dict()
+    for b in sorted_id_ballots:
+        if b.candidate_id not in candidates_scores:
+            candidates_scores[b.candidate_id] = 1
+        else:
+            candidates_scores[b.candidate_id] += 1
+
+    return candidates_scores
+
+
+@app.get("/score/area/party", tags=["EC"])
+def get_party_scores_area(area_id: int, db: Session = Depends(get_db)):
     ballots = crud.get_ballots_by_area(db, VOTE_TOPIC_ID.get("Party"), area_id)
 
     sorted_id_ballots = sorted(ballots, key=lambda b: b.party_id)
