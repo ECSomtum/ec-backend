@@ -43,6 +43,8 @@ def create_candidate(db: Session, citizen_id: int, name: str, area_id: int):
 
 
 def create_ballot_party(db: Session, party_id: int, area_id: int):
+    if party_id == 0:
+        return schema.PartyBallot(id=0, area_id=0, party_id=0)
     ballot = model.PartyBallot(area_id=area_id, party_id=party_id)
 
     db.add(ballot)
@@ -53,6 +55,8 @@ def create_ballot_party(db: Session, party_id: int, area_id: int):
 
 
 def create_ballot_mp(db: Session, candidate_id: int, area_id: int):
+    if candidate_id == 0:
+        return schema.MPBallot(id=0, area_id=0, candidate_id=0)
     ballot = model.MPBallot(area_id=area_id, candidate_id=candidate_id)
 
     db.add(ballot)
