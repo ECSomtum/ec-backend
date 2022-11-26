@@ -332,7 +332,7 @@ def submit_mp(db: Session = Depends(get_db)):
             for a in area_scores:
                 to_submit_id = a.get("won_candidate_id")
 
-                if len(to_submit_id) == 13:
+                if len(str(to_submit_id)) == 13:
                     result.append(asyncio.run(http_client.submit_mp(to_submit_id)))
 
         return result
