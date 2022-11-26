@@ -277,7 +277,7 @@ def get_party_score_areas(db: Session = Depends(get_db)):
 def get_candidate_and_save_to_db(db: Session = Depends(get_db)):
     try:
         candidates = asyncio.run(http_client.get_candidate_from_gov())
-        # TODO Add save to db
+
         for c in candidates:
             citizen_id = c.get("CitizenID")
             name = " ".join([c.get("Name"), c.get("Lastname")])
@@ -300,8 +300,45 @@ def get_population_statistics():
 
 
 @app.post("/submit", tags=["EC"])
-def submit_mp():
-    pass
+def submit_mp(db: Session = Depends(get_db)):
+    try:
+        population_statistics = asyncio.run(http_client.get_population_statistics())
+        area_scores = []
+
+        for location in population_statistics:
+            ballots = crud.get_ballots_by_area(db, VOTE_TOPIC_ID.get("MP"), location.get("LocationID"))
+
+            sorted_id_ballots = sorted(ballots, key=lambda b: b.candidate_id)
+
+            candidate_scores = dict()
+            scores = dict()
+            for b in sorted_id_ballots:
+                if b.candidate_id not in scores:
+                    scores[b.candidate_id] = 1
+                else:
+                    scores[b.candidate_id] += 1
+
+            candidate_scores["score"] = scores
+
+            try:
+                won_candidate_id = max(scores, key=scores.get)
+                candidate_scores["won_candidate_id"] = crud.get_candidate(db, won_candidate_id).citizen_id
+            except ValueError:
+                candidate_scores["won_candidate_id"] = 0
+
+            area_scores.append(candidate_scores)
+
+            result = []
+            for a in area_scores:
+                to_submit_id = a.get("won_candidate_id")
+
+                if len(to_submit_id) == 13:
+                    result.append(asyncio.run(http_client.submit_mp(to_submit_id)))
+
+        return result
+
+    except httpx.HTTPError:
+        return []
 
 
 if __name__ == "__main__":
